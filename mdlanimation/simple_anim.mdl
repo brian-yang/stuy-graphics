@@ -1,0 +1,86 @@
+frames 30
+basename stars
+push
+//============================
+push
+move 250 250 0
+
+push
+rotate z 360 spinner
+sphere 0 0 0 50
+pop
+
+push
+rotate y 360 spinner
+torus 0 0 0 25 50
+pop
+
+pop
+//============================
+push
+move -50 325 0
+
+push
+move 550 0 0 shoot
+box 0 50 0 50 50 50
+pop
+
+pop
+//============================
+push
+move -50 50 0
+
+push
+move 550 0 0 shoot2
+box 0 50 0 50 50 50
+pop
+
+pop
+//============================
+push
+move -50 150 0
+
+push
+move 550 0 0 shoot3
+box 0 50 0 50 50 50
+pop
+
+pop
+//============================
+push
+move -50 475 0
+
+push
+move 550 0 0 shoot4
+box 0 50 0 50 50 50
+pop
+
+pop
+//============================
+push
+move -50 -25 0
+
+push
+move 550 0 0 shoot5
+box 0 50 0 50 50 50
+pop
+
+pop
+//============================
+push
+move -50 360 0
+
+push
+move 550 0 0 shoot6
+box 0 50 0 50 50 50
+pop
+
+pop
+//============================
+vary spinner 0 30 0 1
+vary shoot 0 20 0 1
+vary shoot2 0 30 0 1
+vary shoot3 5 25 0 1
+vary shoot4 0 10 0 1
+vary shoot5 10 25 0 1
+vary shoot6 7 15 0 1

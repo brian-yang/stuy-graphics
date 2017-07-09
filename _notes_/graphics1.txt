@@ -1,0 +1,402 @@
+2/1/1
+
+Aim: Bits o' Pixels
+
+How would you represent color data if you only had the following amount of space per pixel?
+
+color depth
+
+1) 1 bit - on/off
+2) 2 bits - 2-bit gray scale / amber scale (color intensity)
+3) 3 bits - RGB - 8 colors
+4) 4 bits - RGB with intensity
+5) 6 bits - 2 bits per color in RGB
+
+...8 bit
+...1 byte for each color
+
+additive process - RGB
+subtractive process - RBY
+
+Image files
+- Compressed image files
+  - Lossless, lossy (loses some information)
+- Uncompressed image files
+  - Lossless
+
+jpg(Compressed, lossy)
+png(C, L)
+gif(C, L)
+tiff(U, L)
+bmp(U,L)
+RAW(U, L)
+=======================================
+2/2/17
+Image File Formats
+- uncompressed
+- compressed
+- lossless
+- lossy
+
+gif(c, L*)
+allows for animation
+
+Raster
+
+Vector images
+- svg
+- pdf (commands draw images, pixels are not stored)
+
+Net PBM
+uncompressed
+.ppm
+Format:
+	- All whitespace is equal
+	Header -> { P3
+	       	    XRES YRES
+		    MAX COLOR
+        Pixel Data -> { R G B \n
+
+display
+=========================================
+2/3/17
+
+Breshau's Line Algorithm
+
+y = mx + b = 0
+
+mx - y + b = 0
+
+dy * x - dx * y + dx * b
+
+A = dy
+B = -dx
+C = dx * b
+
+f(x,y) = { 0: on the line
+           <0: above the line
+	   >0: below the line
+
+Find midpoint of possible points to find where the line is mostly contained
+============================================
+Line Algorithm
+(x0, y0) -> (x1, y1)
+x = x0, y = y0
+d = f(x + 1, y + 1/2)
+
+while x <= x1:
+      plot (x, y)
+      x++
+      if (d > 0)
+      	 y++
+      d = f(x + 1, y + 1/2)
+============================================
+New Line Algorithm
+ - In f(x, y) = Ax + By + C,
+
+do f((x + 1), (y + 1/2))
+then f((x + 1) + 1, (y + 1/2) + 1)
+d = d + A
+d = d + A + B
+
+while x <= x1:
+      plot (x, y)
+      x++
+      if (d > 0)
+      	 y++
+	 d += B
+      x++
+      d += A
+=============================================
+New Line Algorithm Part 2
+x = x0, y = y0
+d = A + 1/2 B
+while x <= x1:
+      plot (x, y)
+      x++
+      if (d > 0)
+      	 y++
+	 d += B
+      x++
+      d += A
+
+f(x0 + 1, y0 + 1/2)
+Ax0 + A + By0 + 1/2 B + C
+Ax0 + By0 + C + A + 1/2 B
+
+f(x0, y0) = Ax0 + By0 + C
+          = 0
+============================================
+2d = 2A + B
+============================================
+Using edge lists
+- list of points where every 2 points represent the endpoints of a line.
+[P0, P1, P2, P3, P4 ...]
+[A, B,  B, C, C, A]
+AB BC CA (triangle)
+- We can apply transformations by multiplying each point in the edge list.
+Storing/representing edge lists
+- Each point will have x, y, and z components
+- Each component should be a floating point number
+
+x0 x1 x2 xn
+y0 y1 y2 yn
+z0 z1 z2 zn
+1.0 1.0 1.0 1.0
+
+Matrix Math
+- Scalar multiplication
+- Matrix multiplication
+- multiplicative identity
+
+Scalar mult
+s[ a b  = [sa sb
+   c d ]   sc sd]
+
+Matrix multiplication
+m x n (m and n are matrices)
+# of cols in m = # of rows in n
+(A x B)(B x C) = A x C
+
+(4 x 4)(4 x N) = 4 x N
+
+[ A B C  * [gh] = [row0, column 1   row 0, column 1]
+  D E F ]  [ij]   [row1, column 1   row 1, column 1]
+           [kl]
+
+Multiplicative Identity Matrix
+I dot M = M
+ - Diagonal values are 1
+ - All other values are 0
+ - It's a square
+======================================================
+Transformation Matrices
+
+Translation
+(x, y, z) --> (x + a, y + b, z + c)
+
+[1 0 0 a]   [x]   [x + a]
+[0 1 0 b] . [y] = [y + b]
+[0 0 1 c]   [z]   [z + c]
+[0 0 0 1]   [1]   [  1  ]
+
+Scaling
+(x, y, z) --> (ax, by, cz)
+
+[a 0 0 0]   [x]   [ax]
+[0 b 0 0] . [y] = [by]
+[0 0 c 0]   [z]   [cz]
+[0 0 0 1]   [1]   [01]
+
+T --> S --> T
+
+Rotation
+(x, y, z) --> R(theta, axis)
+
+x = r cos phi
+y = r sin phi
+x1 = r cos(phi + theta)
+   = r cos phi cos theta - r sin phi sin theta
+x1 = xcostheta - ysintheta
+y1 = rsin(phi + theta)
+   = rsin phi cos theta + r cos phi sin theta
+y1 = ycostheta + xsintheta
+
+(x, y, z) --> R(theta, x) (x, y cos theta - z sin theta, z cos theta + y sin theta)
+(x, y, z) --> R(theta, y) (x cos theta + z sin theta, y, z cos theta - x sin theta)
+(x, y, z) --> R(theta, z) (x cos theta - y sin theta, y cos theta + x sin theta, z)
+
+
+x
+[1 0 0 0]
+[0 costheta -sintheta 0]
+[0 sintheta costheta 0]
+[0 0 0 1]
+
+y
+[costheta 0 sintheta 0]
+[0 1 0 0]
+[-sintheta 0 costheta 0]
+[0 0 0 1]
+
+z
+[costheta -sintheta 0 0]
+[sintheta costheta 0 0]
+[0 0 1 0]
+[0 0 0 1]
+================================================
+Combining Transformations
+E0, R, T, S
+    R * E0 = E1
+    T * E1 = E2
+    S * E2 = E3
+
+E3 = (R * T * S) * E0
+Rotated, translated, then scaled
+
+apply - apply transformation matrix to edge to matrix
+================================================
+Parametric Equations
+
+Describes curves with respect to a separate independent variable (t)
+
+x = f(t)
+y = g(t)
+
+x = x0 + delta x * t
+y = y0 + delta y * t
+t: 0 --> 1
+
+Circle
+x = rcos(2pi * t) + cx
+y = rsin(2pi * t) + cy
+t: 0 --> 1
+
+Hermite Curves
+Given P0, P1, M0, M1
+
+f(t) = at^3 + bt^2 + ct + d
+f'(t) = 3at^2 + 2bt + c
+
+f(0) = d = p0
+f(1) = a + b + c + d = p1
+f'(0) = c = m0
+f'(1) = 3a + 2b + c = m1
+
+0 0 0 1   a   P0
+1 1 1 1 . b = P1  
+0 0 1 0   c   M0
+3 2 1 0   d   M1
+
+H * C = G
+C = H^-1 * G
+
+H^-1
+=====
+2 -2 1 1
+-3 3 -2 -1
+0 0 1 0
+1 0 0 0
+
+Multiply by Gx and Gy to get ax, ay...
+======================================
+Bezier Curves
+Linear B.C.
+
+P(t) = (1-t)P0 + t * P1
+
+Quadratic B.C.
+
+Q(t) = (1-t)Q0 + t * Q1
+
+Q0 = (1-t) * P0 + t * P1
+Q1 = (1-t) * P1 + t * P2
+
+Q(t) = (1-t)^2 * P0 + 2t(1-t)*P1 + t^2 * P2
+
+Cubic B.C.
+R(t) = (1-t)*R0 + t * R1
+R0 = (1-t)^2 * P0 + 2t(1-t) * P1 + t^2(P2)
+R1 = (1-t)^2 * P1 + 2t(1-t) * P2 + t^2(P3)
+
+R(t) = (1-t)^3 * P0 + 3t(1-t)^2 * P1 + 3t^(1-t) * P2 + t^3 * P3
+
+     (-P0 + 3P1 - 3P2 + P3) * t^3 + (3P1 - 6P1 + 3P2) * t^2 + (-3P0 + 3P1) * t + P0
+     a	    	   +   	      	    b	       	 +     	      c		+	 d
+
+B^-1
+=====
+[-1 3 -3 1]
+[3 -6 -6 0]
+[-3 3 0 0]
+[1 0 0 0]
+=============================================
+
+Rectangular prism
+=================
+
+Given: one vertex
+       height, width, depth
+
+Defining points: vertices
+top-left-front
+
+
+//   -	   -
+//*-     -   d
+
+h
+
+//   -     -
+// -     -
+      w
+
+x     x + w
+y     y - h
+z     z - d
+
+Sphere
+======
+
+Given: center
+       radius
+
+Def points: points on the surface of the sphere (don't connect lines between the center)
+
+[1 0 0]                  [rcosphi] x    [rcosphi + cx]  
+[0 costheta -sinphi]     [rsinphi] y  = [rsinphicostheta + cy]
+[0 sintheta cosphi]      [   0   ] z    [rsinphisintheta + cz]
+
+theta: 0 -> 2pi
+phi: 0 -> pi
+
+OR
+theta: 0 -> pi
+phi: 0 -> 2pi
+
+use a semicircle to generate
+
+Torus
+=====
+
+Given:
+center, circle radius, torus radius
+
+Def: points on the surface
+
+Generate: move a circle then rotate about the x or y axis
+
+[cosphi 0 sinphi]  [rcostheta + R]   [cosphi(rcostheta + R) + cx]
+[0 1 0]            [rsintheta]     = [rsintheta + cy]
+[-sinphi 0 cosphi] [  0  ]           [-sinphi(rcostheta + R) + cz]
+
+theta : 0 -> 2pi
+phi  0 -> 2pi
+
+for rot: 0->1
+    for circ: 0 -> 1
+    	x = rcos(circ * pi) + cx
+	...
+
+Wireframe Mesh
+==============
+-Defining points are used to draw edges that surround an object
+-Computationally simple
+-Hard to render 3d solids
+
+Polygon Mesh 
+============
+-Defining points are used as vertices of polygons (triangles) that cover the object
+-Needed to render 3D solids
+-Edge matrix -> polygon matrix
+[P0, P1, P2, P3, P4, P5 ... ]
+triangle 0   triangle 1
+
+add_box
+add_sphere
+add_torus
+	- Add triangles to the polygon matrix
+	- Add vertices in counterclockwise order
+
+Semi-circles or circles - semi
+# of points per slice - 11

@@ -1,0 +1,348 @@
+	Hidden Surface Removal
+
+Backface Culling
+- Ignore the backward facing polygons
+
+v: vector from the surface of the polygon to the viewer
+n: (surface normal) The vector perpendicular to the plane of the polygon
+
+1) Calculate surface normal
+2) Find theta between surface normal and view vector
+3) If -90 < theta < 90, draw the polygon
+
+1) Calculate N
+
+Find two vectors that share an endpoint, and go out from the common point.
+
+A = P1 - P0
+  <X1 - X0, Y1 - Y0, Z1 - Z0>
+
+B = P2 - P0
+
+N = A x B
+<aybz - azby,
+azbx - axbz,
+axby - aybx>
+
+N . V = N * V * costheta
+
+= nx vx + ny vy + nz vz
+
+View vector
+V = <0, 0, 1>
+====================================
+Relative Coordinate System
+
+- Each object can have its own coordinate system defined by a transformation matrix
+- Each time we draw an object we immediately apply the current coordinate system
+- Allows us to explicitly define which objects are connected
+
+- Maintain a coordinate system stack
+  - push: push a copy of the current top to the stack
+  - MAKE SURE YOU'RE MAKING AN ACTUAL COPY IN PYTHON
+
+  - pop
+
+- Transformations are applied to the top of the stack
+- Objects are added in the following order
+  1. Generate a polygon list
+  2. Apply the top of the stack to the polygons
+  3. Immediately draw the polygons to the screen
+  4. Clear the polygon list
+
+Stack: first initiatlized, first element should be an identity matrix
+Then push copy of identity matrix.
+
+command  |  stack  | image
+============================
+push         I
+	     I
+
+move	     M * I
+xyz	     I
+
+
+box	     M * I
+xyz	     I
+
+
+push	     M * I
+	     M * I
+	     I
+
+===========================
+Compiler
+
+source code -> compiler -> machine code
+
+1. lexer
+2. parser
+3. semantic analyzer
+4. optimizer
+5. code generator
+
+Lexer
+=====
+- Perform lexical analysis
+- Knows all valid tokens
+- Input:
+  source code
+- Output:
+  token list
+
+int main() {
+    long x = 5 + 6;
+    printf("%d", x);
+    return 8;
+}
+
+int- keyword
+main- identifier
+( - symbol
+) - s
+{ - s
+long - k
+x - I
+= - S
+5 - value
++ - S
+6 - V
+
+Parser
+======
+- knows the grammar of the language
+- syntax analysis
+- input: token list
+- output: syntax tree
+
+			int
+			|
+			main
+			|
+			=
+		/			\
+	    long			+
+	 |			/		\
+	 x			5		6
+
+
+Semantic Analyzer
+=================
+- knows how to map tokens to operations, identifiers, and values
+- input: syntax tree
+- output: operation list
+  	  symbol table
+	    - list of all identifiers
+
+Operation List
++: 5, 6
+=: x, p
+printf
+return 8
+
+Symbol Table
+main: int
+x: long
+printf: void
+
+Optimizer
+=========
+... Optimizes operation list and symbol table
+
+Code Generator
+==============
+input: operation list, symbol table
+output: machine code
+
+========================================================
+
+Describe language tokens
+Define language structure (grammar)
+Map tokens to operations
+Map operations to executable code
+
+========================================================
+5/1/17
+
+MDL
+
+motion description language
+
+Compiler tools ( c )
+====================
+lex: generate a laxer
+yacc: generate a parser and semantic analyzer
+(not free)
+
+Compiler tools
+====================
+flex (free lex)
+bison
+
+javacc (Java)
+
+lex.py
+yacc.py
+===================
+animate -delay 5 anim/simple0*
+convert -delay 5 anim/simple0* simple.gif
+*do not use display
+
+frames 100
+basename simple
+vary knob [range of frames (0-indexed)] [scale of knob]
+
+issues
+
+-overlapping vary commands
+-invalid vary range - catch this
+-vary an unused knob - warning
+-not varying a declared knob - default value
+-not setting frames but using vary - catch this
+-not setting basename - default
+=================================
+Pass 1: setup
+- look for and set frames and basename
+- if vary is found but frames is not set, exit.
+- if frames and vary are found but basename is not, set a default
+
+Pass 2: vary
+- if invalid vary range, also exit
+- Generate all knob values for each frame
+- create a structure to hold the knob values
+
+Pass 3: draw
+- for each frame:
+  -set the symbol table values for each knob
+  -apply knob values from the symbol table when needed
+  -at the end of each loop, save the current image
+
+When exiting, print out error message
+=============================================
+Filling in polygons by drawing consecutive horizontal lines
+Scanline conversion
+
+- y: by -> ty
+delta y: 1
+
+- x0 : bx -> tx
+
+delta x0: (tx - bx) / (ty - by)
+
+- x1 : bx -> mx
+
+delta x1: (mx - bx) / (my - by)
+
+OR
+
+x1 : mx -> tx: if y >= my
+
+delta x1: (tx - my) / (ty - my)
+
+check if something is zero or if degenerate triangle
+
+delta x = distance not_zero ? (...) : 0
+
+draw_polygons:
+	for each polygon:
+	    calculate normal
+	    if normal_z > 0:
+	       scanline
+
+	       draw_line
+	       draw_line
+	       draw_line
+
+draw edges with a different color to make sure
+=================================================
+z-buffering
+
+-compare z values when drawing pixels and only plot larger z values
+-store current z-values in a 2D array (z-buffer) - floating point (should be doubles)
+-plot needs a z value and the z buffer
+-drawline needs to compute z values
+-scanline needs to compute z0 and z1
+=================================================
+Lighting and Shading
+
+- Colors are dependant on
+  - Reflective properties of objects
+  - Colors of the lights
+
+2 kinds of light
+  - Ambient: has no specific source
+    	     hits all objects equally
+  - point light source
+
+Calculating Lighting
+I: color (illumination) of a source
+   (Ir, Ig, Ib)
+
+I = I ambient + I diffuse + I specular
+
+Normalized vector
+- magnitude = 1
+|| V || = sqrt(vx^2 + vy^2 + vz^2)
+v = < vx / ||v||, vy / ||v||, vz / ||v||) >
+
+Ambient Reflection
+A: color of ambient light (0 - 255 for r, g, and b)
+Ka: constant of reflection
+
+I ambient = AK(constant of ambient light)
+
+Diffuse reflection (matte)
+- L: point light source
+<x, y, z>, (0-255)
+- Kd: constant of diffuse reflection
+- Light is reflected evenly in all directions
+- Reflection strength is determined by angle with normal
+- Reflection is greatest when theta = 0
+
+I diffuse = Lkd cos theta
+  	  = Lkd(N dot L)
+
+Specular Reflection (glossy)
+- L: point light source
+- Ks: constant of specular reflection
+- Reflected light allows a specific vector
+
+angle between view vector and refected ray is alpha
+
+I specular = L K cos alpha
+  	   = L K RdotV
+
+vectors: r, p, s, l, n
+
+R = P + S
+P: N(N . L)
+S: P - L
+R = P + P - L
+  = 2P - L
+  = N * 2(N dot L) - L
+
+I specular = [LK[(N * 2 * (N dot L) - L) * V]] ^ P - how quickly the reflection fades
+sum for each light
+
+I diffuse = L K (N dot L)
+
+I ambient = AK
+
+Shading Models
+How often I is calculated
+
+Flat
+- Calculate I once per polygon
+
+Goroud
+- Generate I for each pixel
+- Create a list of vertex normals
+  - vertex normal is the normalized sum of all the surface normals that share a vertex
+
+- Calculate I for each vertex in a polygon
+- Generate color in scanline and drawline (similar to z values)
+
+Phong
+- Calculate I for every pixel
+- Create a vertex normal list
+- Generate new normals in scanline and draw_line
